@@ -19,7 +19,7 @@
 
   // ====== PASSWORD PROTECTION ======
   // Change this password as needed
-  const PAGE_PASSWORD = 'letmein';
+  const PAGE_PASSWORD = 'talbatz';
   function showPasswordOverlay() {
     const overlay = document.getElementById('password-overlay');
     const main = document.getElementById('sg-wp-container');
