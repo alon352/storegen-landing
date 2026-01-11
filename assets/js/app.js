@@ -13,8 +13,51 @@
  * 8. Boot Sequence
  */
 
+
 (function () {
   'use strict';
+
+  // ====== PASSWORD PROTECTION ======
+  // Change this password as needed
+  const PAGE_PASSWORD = 'letmein';
+  function showPasswordOverlay() {
+    const overlay = document.getElementById('password-overlay');
+    const main = document.getElementById('sg-wp-container');
+    overlay.style.display = 'flex';
+    main.style.filter = 'blur(8px)';
+    main.style.pointerEvents = 'none';
+    main.style.userSelect = 'none';
+  }
+  function hidePasswordOverlay() {
+    const overlay = document.getElementById('password-overlay');
+    const main = document.getElementById('sg-wp-container');
+    overlay.style.display = 'none';
+    main.style.filter = '';
+    main.style.pointerEvents = '';
+    main.style.userSelect = '';
+  }
+  function setupPasswordProtection() {
+    const overlay = document.getElementById('password-overlay');
+    const input = document.getElementById('password-input');
+    const submit = document.getElementById('password-submit');
+    const error = document.getElementById('password-error');
+    function tryUnlock() {
+      if (input.value === PAGE_PASSWORD) {
+        hidePasswordOverlay();
+      } else {
+        error.textContent = 'Incorrect password.';
+        input.value = '';
+        input.focus();
+      }
+    }
+    submit.addEventListener('click', tryUnlock);
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') tryUnlock();
+    });
+    overlay.style.display = 'flex';
+    input.focus();
+  }
+
 
   /* =====================================================
      CONFIGURATION
@@ -342,9 +385,29 @@
   }
 
   // Start when DOM is ready
+  function startWithPassword() {
+    setupPasswordProtection();
+    // Only boot the rest of the app after password is entered
+    const overlay = document.getElementById('password-overlay');
+    const main = document.getElementById('sg-wp-container');
+    function unlockHandler() {
+      if (overlay.style.display === 'none') {
+        boot();
+        overlay.removeEventListener('transitionend', unlockHandler);
+      }
+    }
+    // Listen for overlay being hidden
+    const observer = new MutationObserver(function() {
+      if (overlay.style.display === 'none') {
+        boot();
+        observer.disconnect();
+      }
+    });
+    observer.observe(overlay, { attributes: true, attributeFilter: ['style'] });
+  }
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
+    document.addEventListener('DOMContentLoaded', startWithPassword);
   } else {
-    boot();
+    startWithPassword();
   }
 })();

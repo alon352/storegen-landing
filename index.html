@@ -11,8 +11,18 @@
 </head>
 <body data-theme="dark">
 
+  <!-- Password Overlay -->
+  <div id="password-overlay" style="position:fixed;z-index:9999;top:0;left:0;width:100vw;height:100vh;background:rgba(20,20,30,0.97);display:flex;align-items:center;justify-content:center;flex-direction:column;">
+    <div style="background:#23233a;padding:2.5em 2em 2em 2em;border-radius:1em;box-shadow:0 4px 32px #0003;min-width:260px;max-width:90vw;text-align:center;">
+      <h2 style="color:#fff;margin-bottom:1em;font-size:1.3em;">Enter Password</h2>
+      <input id="password-input" type="password" placeholder="Password" style="padding:0.7em 1em;border-radius:0.5em;border:none;width:100%;margin-bottom:1em;font-size:1em;outline:none;" autofocus />
+      <div id="password-error" style="color:#ff6a6a;font-size:0.95em;min-height:1.5em;"></div>
+      <button id="password-submit" style="padding:0.7em 2em;border-radius:0.5em;background:#4e8cff;color:#fff;border:none;font-size:1em;cursor:pointer;">Submit</button>
+    </div>
+  </div>
+
   <!-- Main Container (scoped for WordPress compatibility) -->
-  <div id="sg-wp-container">
+  <div id="sg-wp-container" style="filter:blur(8px);pointer-events:none;user-select:none;">
     <div class="sg-html-layer">
 
       <!-- Visual Engine (Background + Sparks) -->
