@@ -20,6 +20,27 @@
   // ====== PASSWORD PROTECTION ======
   // Change this password as needed
   const PAGE_PASSWORD = 'talbatz';
+  // Cookie helpers
+  function setCookie(name, value, days) {
+    let expires = '';
+    if (days) {
+      const date = new Date();
+      date.setTime(date.getTime() + (days*24*60*60*1000));
+      expires = '; expires=' + date.toUTCString();
+    }
+    document.cookie = name + '=' + encodeURIComponent(value) + expires + '; path=/';
+  }
+  function getCookie(name) {
+    const nameEQ = name + '=';
+    const ca = document.cookie.split(';');
+    for(let i=0;i<ca.length;i++) {
+      let c = ca[i];
+      while (c.charAt(0)==' ') c = c.substring(1,c.length);
+      if (c.indexOf(nameEQ) == 0) return decodeURIComponent(c.substring(nameEQ.length,c.length));
+    }
+    return null;
+  }
+
   function showPasswordOverlay() {
     const overlay = document.getElementById('password-overlay');
     const main = document.getElementById('sg-wp-container');
@@ -43,6 +64,7 @@
     const error = document.getElementById('password-error');
     function tryUnlock() {
       if (input.value === PAGE_PASSWORD) {
+        setCookie('sgpw', PAGE_PASSWORD, 7); // Save for 7 days
         hidePasswordOverlay();
       } else {
         error.textContent = 'Incorrect password.';
@@ -386,17 +408,16 @@
 
   // Start when DOM is ready
   function startWithPassword() {
+    // If cookie is set and correct, skip overlay
+    if (getCookie('sgpw') === PAGE_PASSWORD) {
+      hidePasswordOverlay();
+      boot();
+      return;
+    }
     setupPasswordProtection();
     // Only boot the rest of the app after password is entered
     const overlay = document.getElementById('password-overlay');
     const main = document.getElementById('sg-wp-container');
-    function unlockHandler() {
-      if (overlay.style.display === 'none') {
-        boot();
-        overlay.removeEventListener('transitionend', unlockHandler);
-      }
-    }
-    // Listen for overlay being hidden
     const observer = new MutationObserver(function() {
       if (overlay.style.display === 'none') {
         boot();
